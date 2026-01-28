@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.venv/
+.env
+.env.*
+# Streamlit
+.streamlit/
+# Notebooks
+.ipynb_checkpoints
+# OS
+.DS_Store
+# sessions (local storage)
+1/sessions/
