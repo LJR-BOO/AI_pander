@@ -1,64 +1,77 @@
-# AI_pander — AI 智能伴侣 Demo (Streamlit + Deepseek-compatible)
+# AI_pander — AI 智能伴侣 Demo
+
+[Demo (在线链接占位)](REPLACE_WITH_DEPLOY_URL) · License: MIT
 
 简介
-- 本仓库包含一个基于 Streamlit 的 AI 智能伴侣 Demo（入口：`ai_companion_app.py`）。
-- 支持本地演示模式（无需 key）与调用 OpenAI-compatible Deepseek endpoint（需配置环境变量）。
-- 目标：快速得到可交互的 Demo，用于寒假项目产出与简历展示。
+- 基于 Streamlit 的 AI 智能伴侣（聊天 + 文档检索）。支持本地 mock 演示模式与调用 Deepseek (OpenAI-compatible) endpoint。
+- 入口文件：`ai_companion_app.py`。示例检索场景：`app.py`。
+- 项目亮点：流式回复支持、mock 回退、会话持久化、应答证据显示、易于部署（Docker / Streamlit Cloud / Render）。
 
-主要文件
-- `ai_companion_app.py` — Streamlit 主程序（会话管理、流式回复兼容、会话持久化）
-- `deepseek_client.py` — Deepseek 调用占位（可选）
-- `requirements.txt` — 依赖列表
-- `docs/prompt.md` — persona、prompt 与合规建议
-- `examples/` — 示例文档 (`doc1.txt`, `doc2.txt`)
-- `1/resources/` — 放置 logo / avatar（占位）
-- `.gitignore`, `LICENSE`
-
-快速开始（Windows / PowerShell）
-1. 克隆你的仓库并进入目录（若未克隆）：
-   ```
+快速开始（本地）
+1. 克隆仓库并进入目录：
+   ```bash
    git clone https://github.com/LJR-BOO/AI_pander.git
    cd AI_pander
    ```
 
-2. （可选）运行初始化脚本（若你保存了 `init_repo.ps1`）：
-   ```
-   .\init_repo.ps1
-   ```
-
-3. 创建并激活虚拟环境（PowerShell）：
-   ```
+2. 创建虚拟环境并安装依赖：
+   ```bash
    python -m venv .venv
+   # mac/linux
+   source .venv/bin/activate
+   # windows (PowerShell)
    .\.venv\Scripts\Activate.ps1
-   ```
 
-4. 安装依赖：
-   ```
    pip install -r requirements.txt
    ```
 
-5. （可选）设置 Deepseek key（仅当要调用远端时）：
-   - 临时（当前会话）：
-     ```
-     $env:DEEPSEEK_API_KEY = "your_key_here"
-     $env:DEEPSEEK_BASE_URL = "https://api.deepseek.com"  # 如需自定义
-     ```
-   - 永久（当前用户，重启 PowerShell 生效）：
-     ```
-     setx DEEPSEEK_API_KEY "your_key_here"
-     setx DEEPSEEK_BASE_URL "https://api.deepseek.com"
-     ```
-
-6. 运行应用：
-   ```
+3. 复制示例环境变量并运行（演示模式，不需要 API Key）：
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 如需设置真实 DEEPSEEK_API_KEY（不要将真实 key 提交到仓库）
    streamlit run ai_companion_app.py
    ```
-   然后在浏览器打开 http://localhost:8501
 
-部署建议
-- Streamlit Community Cloud（最简单）：连接 GitHub，部署 `main` 分支，并在 Secrets/Environment variables 中设置 `DEEPSEEK_API_KEY`。
-- Render / Railway / Docker：我可以为你生成 Dockerfile 与部署说明（如需告知）。
+演示（README 中放入截图/GIF）
+- 请把 4 张关键截图上传到 `docs/screenshots/` 并替换下列占位：
+  - `docs/screenshots/01-input.png`：上传文档 / 输入问题
+  - `docs/screenshots/02-answer.png`：答案与证据片段
+  - `docs/screenshots/03-history.png`：会话历史 / 导出
+  - `docs/screenshots/04-deploy.png`：已部署页面截图
 
-合规提示
-- 公开 demo 时请注意 persona 描述的合规与伦理（docs/prompt.md 中有建议）。
-- 切勿将密钥提交到仓库；使用环境变量或部署平台的 secrets。
+部署（建议）
+- Streamlit Community Cloud（最简单）
+  - 在 https://share.streamlit.io 创建新 app，连接本仓库 `main` 分支，设置 Secrets: `DEEPSEEK_API_KEY`、`DEEPSEEK_BASE_URL`（如需）。
+- 使用 Docker（推荐复现）：
+  - 构建： `docker build -t ai_pander:latest .`
+  - 运行： `docker run -p 8501:8501 --env-file .env ai_pander:latest`
+- Render / Railway：参考 Docker 或 Python 服务部署。
+
+环境变量（.env.example）
+- 请使用 `.env.example` 作参考，不要提交真实 key：
+  ```
+  DEEPSEEK_API_KEY=PLACEHOLDER_DEEPSEEK_KEY
+  DEEPSEEK_BASE_URL=https://api.deepseek.com
+  DEEPSEEK_STREAM_TIMEOUT=15
+  DEEPSEEK_RETRY_ATTEMPTS=2
+  DEEPSEEK_RETRY_BACKOFF=0.6
+  ```
+
+Mock 模式
+- 当未设置 `DEEPSEEK_API_KEY` 时，应用会自动进入演示模式（不调用远端 API），适合公开 demo / 录屏展示，避免产生费用或泄露 key。
+
+安全与合规提示
+- 请勿把真实密钥提交到仓库；若误提交，立即撤销并更换密钥。
+- 对用户上传内容请提示隐私与合规（见 `docs/prompt.md`）。
+
+如何贡献
+- 新功能请在 feature 分支上开发并提交 PR。
+- 建议写单元测试并确保 CI 通过（仓库含 GitHub Actions 工作流）。
+
+简历用一行（可直接复制）
+- 中文：使用 Python + Streamlit 开发 AI 智能伴侣 Demo，集成 Deepseek-compatible API 实现文档检索与流式问答；含 mock 模式、部署说明与演示。
+- English: Built a Streamlit-based AI companion demo integrating a Deepseek-compatible API for document retrieval & streaming chat; includes mock fallback and deployment instructions.
+
+联系方式
+- 仓库: https://github.com/LJR-BOO/AI_pander
+- Demo: REPLACE_WITH_DEPLOY_URL
