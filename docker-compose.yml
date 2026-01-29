@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  ai_pander:
+    build: .
+    image: ai_pander:latest
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - ./:/app:cached
+    restart: unless-stopped
