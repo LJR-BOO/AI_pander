@@ -14,7 +14,7 @@ def test_chat_completion_mock(monkeypatch):
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
     monkeypatch.setenv("MOCK_MODE", "True")
 
-    # 直接使用已导入的函数，无需任何重新导入
+    # 直接使用已导入的函数
     response = chat_completion(prompt="你好，你是谁？")
     assert response is not None
     assert len(response) > 0
@@ -28,7 +28,7 @@ def test_mock_mode_env(monkeypatch):
     assert os.getenv("MOCK_MODE") == "False"
     print("✅ 环境变量测试通过！")
 
-# 本地运行入口（直接调用测试函数，不依赖pytest）
+# 本地运行入口
 if __name__ == "__main__":
     from unittest.mock import MagicMock
     mock = MagicMock()
