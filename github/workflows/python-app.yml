@@ -34,14 +34,19 @@ jobs:
           pip install -r requirements.txt
           pip install flake8
 
+      # 新增：关键验证步骤——打印CI环境的文件列表和路径，排查文件是否存在
+      - name: Verify CI env & file structure
+        run: |
+          ls -la  # 列出根目录所有文件，确认deepseek_client.py是否存在
+          pwd     # 打印当前工作目录，确认路径是否正确
+          echo "初始PYTHONPATH: $PYTHONPATH"  # 打印初始环境变量
+
       - name: Lint (flake8)
         run: |
-          # Allowing E501 line length to be flexible; adjust rules as needed
           flake8 --max-line-length=100 || true
 
       - name: Run tests
         run: |
           pip install pytest
-          # 核心修复：强制将CI环境的项目根目录加入Python搜索路径
-          export PYTHONPATH=$(pwd)
-          pytest -q
+          # 更强制的写法：内联设置PYTHONPATH，直接跟在pytest前，100%生效
+          PYTHONPATH=$(pwd) pytest -q
