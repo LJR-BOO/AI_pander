@@ -42,4 +42,6 @@ jobs:
       - name: Run tests
         run: |
           pip install pytest
+          # 核心修复：强制将CI环境的项目根目录加入Python搜索路径
+          export PYTHONPATH=$(pwd)
           pytest -q
