@@ -1,5 +1,8 @@
 import os
 import importlib
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def test_chat_completion_mock(monkeypatch):
     # Ensure DEEPSEEK_API_KEY is unset
