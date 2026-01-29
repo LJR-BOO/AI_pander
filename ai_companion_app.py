@@ -88,6 +88,10 @@ if "message" not in st.session_state:
 if "current_session" not in st.session_state:
     st.session_state.current_session = generate_session_name()
 
+# 修复：初始化need_rerun，避免控制台警告
+if "need_rerun" not in st.session_state:
+    st.session_state.need_rerun = False
+
 # 顶部 UI
 st.title("AI智能伴侣——小桃")
 logo_path = os.path.join(".", "1", "resources", "设计AI智能伴侣logo.png")
@@ -102,14 +106,15 @@ for msg in st.session_state.message:
         continue
     st.chat_message(msg.get("role")).write(msg.get("content"))
 
-# Deepseek / API 客户端提示
-if not DEEPSEEK_API_KEY:
-    st.warning("未检测到 DEEPSEEK_API_KEY。当前使用演示模式（不会调用远端 Deepseek）。若需调用 Deepseek，请在环境变量中配置 DEEPSEEK_API_KEY。")
-
-try:
-    client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
-except Exception:
-    client = None
+# 修复：严谨的客户端初始化（检测API_KEY和BASE_URL）
+client = None
+if DEEPSEEK_API_KEY and DEEPSEEK_BASE_URL:
+    try:
+        client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+    except Exception as e:
+        st.error(f"客户端初始化失败：{e}")
+else:
+    st.warning("未检测到有效的 DEEPSEEK_API_KEY 或 DEEPSEEK_BASE_URL，当前使用演示模式。")
 
 # 侧边栏：控制面板
 with st.sidebar:
@@ -126,11 +131,11 @@ with st.sidebar:
         with col1:
             if st.button(session, key=f"load_{session}"):
                 load_session(session)
-                st.experimental_rerun()
+                st.rerun()  # 修复：替换过期的experimental_rerun
         with col2:
             if st.button("删", key=f"del_{session}"):
                 delete_session(session)
-                st.experimental_rerun()
+                st.rerun()  # 修复：替换过期的experimental_rerun
 
     st.divider()
     st.subheader("伴侣信息——小桃")
@@ -150,7 +155,8 @@ if prompt:
     st.chat_message("user").write(prompt)
     st.session_state.message.append({"role": "user", "content": prompt})
 
-    if not DEEPSEEK_API_KEY or client is None:
+    # 修复：简化判断，直接检测client是否有效
+    if client is None:
         # 本地演示回退
         reply = "（演示模式）小桃：好呀~ 我在这里陪你～(*´˘`*)♡"
         st.chat_message("assistant").write(reply)
@@ -170,31 +176,22 @@ if prompt:
             full_response = ""
             assistant_msg = st.chat_message("assistant")
             placeholder = assistant_msg.empty()
+            # 修复：核心——正确解析OpenAI v1.x的ChoiceDelta对象
             for chunk in response_iter:
-                try:
-                    delta = chunk.choices[0].delta
-                    chunk_text = ""
-                    if isinstance(delta, dict):
-                        chunk_text = delta.get("content", "") or ""
-                    else:
-                        chunk_text = getattr(chunk.choices[0], "delta", "") or ""
-                except Exception:
-                    chunk_text = getattr(chunk, "text", "") or ""
-
-                if chunk_text:
+                # 仅处理有内容的chunk，跳过空包
+                if chunk.choices and chunk.choices[0].delta.content:
+                    chunk_text = chunk.choices[0].delta.content
                     full_response += chunk_text
-                    placeholder.write(full_response)
+                    placeholder.write(full_response)  # 流式刷新内容
 
+            # 修复：合理的空响应处理（流式无内容时提示）
             if not full_response:
-                try:
-                    full_response = response_iter.choices[0].message.content
-                except Exception:
-                    full_response = "（未能正确解析模型返回内容）"
+                full_response = "（小桃一时不知道说什么好呢～(｡･ω･｡)ﾉ♡）"
 
             st.session_state.message.append({"role": "assistant", "content": full_response})
             save_session()
         except Exception as e:
-            st.error(f"调用模型失败：{e}")
+            st.error(f"调用模型失败：{str(e)}")
             fallback = "出错啦，小桃暂时无法回复～请稍后再试♡"
             st.chat_message("assistant").write(fallback)
             st.session_state.message.append({"role": "assistant", "content": fallback})
@@ -213,4 +210,4 @@ if st.sidebar.button("导出历史为 txt"):
 # 全局刷新逻辑
 if st.session_state.get("need_rerun"):
     st.session_state.pop("need_rerun", None)
-    st.experimental_rerun()
+    st.rerun()  # 修复：替换过期的experimental_rerun
