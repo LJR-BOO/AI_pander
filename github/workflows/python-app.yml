@@ -23,6 +23,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest flake8
+          # 新增兜底：把项目根写入Python官方pth文件，永久加入模块路径
+          echo $(pwd) > $(python -c "import site; print(site.getsitepackages()[0])")/ai-project.pth
 
       # 新增：验证CI环境的文件结构
       - name: Verify CI environment
@@ -36,5 +38,5 @@ jobs:
 
       - name: Test with pytest
         run: |
-          # 核心修复：内联设置PYTHONPATH
-          PYTHONPATH=$(pwd) pytest -v --tb=short
+          # 核心修复：改用python -m pytest，严格继承PYTHONPATH
+          PYTHONPATH=$(pwd) python -m pytest -v --tb=short
