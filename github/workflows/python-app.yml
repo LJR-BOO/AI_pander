@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feat/deploy-ci ]  # 加feat/deploy-ci，推这个分支也触发CI
   pull_request:
     branches: [ main ]
 
