@@ -48,7 +48,7 @@
 - Render / Railway：参考 Docker 或 Python 服务部署。
 
 环境变量（.env.example）
-- 请使用 `.env.example` 作参考，不要提交真实 key：
+- 请使用 `.env.example` 作参考：
   ```
   DEEPSEEK_API_KEY=PLACEHOLDER_DEEPSEEK_KEY
   DEEPSEEK_BASE_URL=https://api.deepseek.com
@@ -68,7 +68,7 @@ Mock 模式
 - 新功能请在 feature 分支上开发并提交 PR。
 - 建议写单元测试并确保 CI 通过（仓库含 GitHub Actions 工作流）。
 
-简历用一行（可直接复制）
+
 - 中文：使用 Python + Streamlit 开发 AI 智能伴侣 Demo，集成 Deepseek-compatible API 实现文档检索与流式问答；含 mock 模式、部署说明与演示。
 - English: Built a Streamlit-based AI companion demo integrating a Deepseek-compatible API for document retrieval & streaming chat; includes mock fallback and deployment instructions.
 
